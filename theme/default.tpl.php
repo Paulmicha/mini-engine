@@ -2,13 +2,9 @@
 
 /**
  *  @file
- *  Default Page Template (just feedback)
+ *  Fallback content template
  */
 
 ?>
-<div class="row-fluid">
-    <div class="span12">
-        <h1><?php print $metadata[ 'head_page_title' ]; ?></h1>
-        <?php print $content; ?>
-    </div>
-</div>
+<h1><?php print $page_title; ?></h1>
+<?php print $content; ?>
