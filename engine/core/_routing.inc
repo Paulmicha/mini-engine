@@ -20,7 +20,8 @@ function base_path()
     
     if ( !isset( $base_path ))
     {
-        $script_filename = array_pop( explode( '/', $_SERVER[ 'SCRIPT_NAME' ]));
+        $ssn_arr = explode( '/', $_SERVER[ 'SCRIPT_NAME' ]);
+        $script_filename = array_pop( $ssn_arr );
         $base_path = str_replace( $script_filename, '', $_SERVER[ 'PHP_SELF' ]);
     }
     
