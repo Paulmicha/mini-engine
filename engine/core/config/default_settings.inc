@@ -22,7 +22,7 @@ $theme_path = "theme";//            dir to scan for template files & assets
 $base_tpl = "page";
 $container_tpl = "$theme_path/$base_tpl.tpl.php";
 $content_tpl = "$theme_path/index.tpl.php";
-$content_tpl_extensions_arr = array( '.tpl.php', '.html' );//       file extensions allowed for use as content tpl
+$content_tpl_extensions_arr = array( '.tpl.php', '.html', '.md' );//       file extensions allowed for use as content tpl
 
 
 //      Content globals
