@@ -15,6 +15,7 @@ include 'engine/core/_str.inc';
 include 'engine/core/_array.inc';
 include 'engine/core/_date.inc';
 include 'engine/core/_network.inc';
+include 'engine/core/_http_auth.inc';
 include 'engine/core/_tokens.inc';
 
 include 'engine/core/_ui.inc';

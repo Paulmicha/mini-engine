@@ -43,6 +43,17 @@ function send_404()
 
 
 /**
+ *  401
+ */
+function send_401()
+{
+    header( 'HTTP/1.0 401 Unauthorized' );
+    $GLOBALS[ 'content_tpl' ] = $GLOBALS[ 'theme_path' ] .'/401.tpl.php';
+}
+
+
+
+/**
  *  JSON response
  */
 function send_json( $data = null )
