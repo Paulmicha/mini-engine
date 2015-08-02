@@ -39,7 +39,7 @@
     RewriteRule .? - [L]
 
     # Rewrite all other queries to the front controller.
-    RewriteRule ^(.*)$ %{ENV:BASE}/front_controller.php?q=$1 [L,QSA]
+    RewriteRule ^(.*)$ %{ENV:BASE}/front_controller.php [L,QSA]
 
 </IfModule>
 

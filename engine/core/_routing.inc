@@ -10,9 +10,14 @@
 
 
 /**
- *  Used to handle "subfolder" location
- *  Ex: if the app lives in http://192.168.1.2/mini-engine/1.0.1-alpha,
- *  this will return : "/mini-engine/1.0.1-alpha/"
+ *  Get the relative path to the project document root dir.
+ *  
+ *  @example
+ *      If the app lives in http://192.168.1.2/mini-engine/1.0.1-alpha,
+ *      this will return : "/mini-engine/1.0.1-alpha/"
+ *  @example
+ *      If the app lives in http://www.example.com,
+ *      this will return : "/"
  */
 function base_path()
 {
@@ -23,6 +28,9 @@ function base_path()
         $ssn_arr = explode( '/', $_SERVER[ 'SCRIPT_NAME' ]);
         $script_filename = array_pop( $ssn_arr );
         $base_path = str_replace( $script_filename, '', $_SERVER[ 'PHP_SELF' ]);
+        if ( empty( $base_path )) {
+            $base_path = '/';
+        }
     }
     
     return $base_path;
@@ -31,21 +39,36 @@ function base_path()
 
 
 /**
- *  Request is $_GET[ 'q' ], which is rewritten "à la Drupal"
+ *  The request is essentially REQUEST_URI without query strings nor base path,
+ *  and url-decoded (but unsanitized).
+ *  @see get_request_arr()
+ */
+function get_request()
+{
+    $request = ltrim( request_uri( true ), base_path());
+    return urldecode( $request );
+}
+
+
+
+/**
+ *  The "request array" is the result of splitting the request on '/',
+ *  and sanitizing every item.
  *  
  *  @example : when URL is http://www.example.com/this/is-my/path?test=1
  *      -> returns array( 'this', 'is-my', 'path' );
  *  
- *  @example : when URL is http://www.example.com/rest/thiséà&*%ù/..//0/is-my/path#test
- *      -> returns array( 'thisea-u', '0', 'is-my', 'path' );
+ *  @example : when URL is http://www.example.com/rest/this.éà&*%ù/..//0/is-my/path#test
+ *      -> returns array( 'rest', 'this.ea-u', '0', 'is-my', 'path' );
  */
 function get_request_arr()
 {
     $req_arr = array();
+    $request = get_request();
     
-    if ( !empty( $_GET[ 'q' ]))
+    if ( !empty( $request ))
     {
-        $req_arr = explode( '/', $_GET[ 'q' ]);
+        $req_arr = explode( '/', $request );
         
         //      Always force only alphanumeric lowercase and "-" as allowed characters in URL "fragments"
         //      (and force a limit to the number of "args")
@@ -56,7 +79,6 @@ function get_request_arr()
             }
             
             //      update 2014/07/27 06:09:13 - allow dots
-            //$req_arr[ $i ] = str_clean( $val );
             $req_arr[ $i ] = str_clean( $val, '-', array( 'preserve_chars' => '\.' ));
         }
         
@@ -220,15 +242,20 @@ function get_current_url( $options = array())
  */
 function get_current_path( $options = array())
 {
+    $request = get_request();
+    
     //      Home
-    if ( !isset( $_GET[ 'q' ]) || empty( $_GET[ 'q' ]))
+    if ( !isset( $request ) || empty( $request )) {
         return '/';
+    }
     
     //      The rest
-    if ( @$options[ 'with_base_path' ])
-        return url( $_GET[ 'q' ]);
-    else
-        return $_GET[ 'q' ];
+    if ( @$options[ 'with_base_path' ]) {
+        return url( $request );
+    }
+    else {
+        return $request;
+    }
 }
 
 
@@ -238,14 +265,16 @@ function get_current_path( $options = array())
  */
 function path_is_active( $url )
 {
+    $request = get_request();
+    
     //      Home
-    if (( $url == '/' || empty( $url )) && empty( $_GET ))
+    if (( $url == '/' || empty( $url )) && empty( $request ))
         return true;
     
     //      The rest
-    if ( !empty( $_GET[ 'q' ]))
+    if ( !empty( $request ))
     {
-        $request_str = $_GET[ 'q' ];
+        $request_str = $request;
         $clean_path_str = join( '/', explode( '/', strtok( $url, '?' )));
         if ( $request_str == $clean_path_str )
             return true;
@@ -316,18 +345,13 @@ function request_uri( $omit_query_string = FALSE )
  */
 function reload_link( $label = 'reload' )
 {
-    //$current_url = get_current_path( array( 'with_base_path' => true ));
     $current_url = get_current_path();
     
-    if ( !empty( $_GET ))
-    {
-        if ( !empty( $_GET[ 'q' ]))
-            unset( $_GET[ 'q' ]);
-        if ( !empty( $_GET ))
-            $current_url .= "?". http_build_query( $_GET );
+    if ( !empty( $_GET )) {
+        $current_url .= "?". http_build_query( $_GET );
     }
     
-    return "<a href='". url( $current_url ) ."'><i class='icon-repeat'></i>&nbsp;$label</a>";
+    return "<a href='". url( $current_url ) ."'>$label</a>";
 }
 
 
